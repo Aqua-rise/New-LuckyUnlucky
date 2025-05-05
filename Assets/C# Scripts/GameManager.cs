@@ -1,10 +1,7 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
 using Random = UnityEngine.Random;
 
@@ -26,14 +23,21 @@ namespace C__Scripts
         public TMP_Text numAttemptsText;
         public TMP_Text shopLowerBoundText;
         public TMP_Text shopUpperBoundText;
+        public TMP_Text finalProbabilityResultsText;
+        public TMP_Text finalProbabilityResultsTextPercentage;
         public TMP_InputField lowerBoundEntryField;
         public TMP_InputField upperBoundEntryField;
         public RectTransform generatedNumberTransform;
         public GameObject mainMenu;
-        public GameObject errorText;
+        public GameObject errorTextDefault;
+        public GameObject errorTextNull;
+        public GameObject errorTextZero;
+        public GameObject errorTextEqual;
         public GameObject pauseMenu;
         public GameObject seeResultsButton;
         public GameObject checkMark;
+        public GameObject customDifficultyMenu1;
+        public GameObject customDifficultyMenu2;
         public Button slowAndSteadyButton;
         public Button openShopButton;
         public int upperDecrease;
@@ -53,21 +57,26 @@ namespace C__Scripts
         public bool inputLock;
         public bool canPause;
         public bool decrementUpperBound;
+        public bool gameWin;
         
         public Vector3 startingPosition = new Vector3(442, -215, 0);
-
-        public GameObject winMusic;
-        public GameObject backgroundMusic;
-
-        private void Update()
+        
+        public AudioSource winMusic;
+        public AudioSource orchestralSting;
+        public AudioSource backgroundMusic;
+        public AudioClip winMusicClipPart2;
+        
+        /*private void Update()
         {
+            //Disabled in WebGL Build
+            
             if (canPause && Input.GetKeyDown(KeyCode.Escape))
             {
-                pauseMenu.SetActive(true);
+                ShowPauseMenu();
             }
-        }
-
-
+            
+        }*/
+        
         public void HandleDifficulty(string difficulty)
         {
             switch (difficulty)
@@ -81,8 +90,6 @@ namespace C__Scripts
                     slowAndSteadyCost = 1000;
                     slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
                     upperDecrease = 100;
-
-                    
                     break;
                 case "medium": upperProbabilityOdds = mediumProbability;
                     increaseMyOddsUpperCost = 50000;
@@ -94,6 +101,42 @@ namespace C__Scripts
                     upperDecrease = 1000;
                     break;
                 case "hard": upperProbabilityOdds = hardProbability;
+                    increaseMyOddsUpperCost = 500000;
+                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+                    increaseMyOddsLowerCost = 250000;
+                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+                    slowAndSteadyCost = 100000;
+                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+                    upperDecrease = 10000;
+                    break;
+            }
+            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+            EnablePausing();
+        }
+        
+        public void HandleCustomDifficulty(string difficulty)
+        {
+            switch (difficulty)
+            {
+                case "easy":
+                    increaseMyOddsUpperCost = 10000;
+                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+                    increaseMyOddsLowerCost = 5000;
+                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+                    slowAndSteadyCost = 1000;
+                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+                    upperDecrease = 100;
+                    break;
+                case "medium":
+                    increaseMyOddsUpperCost = 50000;
+                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+                    increaseMyOddsLowerCost = 10000;
+                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+                    slowAndSteadyCost = 5000;
+                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+                    upperDecrease = 1000;
+                    break;
+                case "hard":
                     increaseMyOddsUpperCost = 500000;
                     increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
                     increaseMyOddsLowerCost = 250000;
@@ -125,6 +168,18 @@ namespace C__Scripts
             upperProbabilityOdds = value;
         }
 
+        public void DecreaseUpperProbabilityOdds(int value)
+        {
+            if (upperProbabilityOdds - value <= lowerProbabilityOdds)
+            {
+                upperProbabilityOdds = lowerProbabilityOdds + 1;
+            }
+            else
+            {
+                upperProbabilityOdds -= value;
+            }
+        }
+
         public int GetUpperProbabilityOdds()
         {
             return upperProbabilityOdds;
@@ -151,7 +206,11 @@ namespace C__Scripts
             if (GetRandomlyGeneratedNumber() <= lowerProbabilityOdds)
             {
                 WinGame();
-                winMusic.SetActive(true);
+            }
+            else if (GetRandomlyGeneratedNumber() == upperProbabilityOdds && (float)lowerProbabilityOdds/upperProbabilityOdds <= 0.01)
+            {
+                backgroundMusic.Pause();
+                PlayOrchestralSting();
             }
             
         }
@@ -165,7 +224,7 @@ namespace C__Scripts
                 upperProbabilityOdds--;
                 HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
             }
-            generatedNumber = Random.Range(lowerProbabilityOdds, upperProbabilityOdds + 1);
+            generatedNumber = Random.Range(1, upperProbabilityOdds + 1);
             SetRandomlyGeneratedNumber(generatedNumber);
             return generatedNumber;
         }
@@ -226,9 +285,15 @@ namespace C__Scripts
             }
 
             yield return new WaitForSeconds(0.2f);
-            if (probabilityDisplayText.TryGetComponent<Button>(out Button nothing))
+            
+            // Condition to see if the orchestral sting should play
+            if (gameWin == false && !isProbabilityLessEqualToOnePercent())
             {
                 EnableGenerationButton();
+            }
+            else
+            {
+                // let the button turn back on after the orchestral sting couroutine finishes
             }
         }
 
@@ -269,16 +334,44 @@ namespace C__Scripts
         public void WinGame()
         {
             inputLock = true;
-            Destroy(probabilityDisplayText.GetComponent<Button>());
+            gameWin = true;
+            DisableGenerationButton();
             canvasAnimator.SetBool("GameWin", true);
-            winMusic.SetActive(true);
-            backgroundMusic.SetActive(false);
+            backgroundMusic.Stop();
+            StartPlayingVictoryMusic();
             seeResultsButton.SetActive(true);
             openShopButton.interactable = false;
             accumulatedPointsText.SetText(totalAccumulatedPoints.ToString("N0"));
             numAttemptsText.SetText(numAttempts.ToString("N0"));
-
+            finalProbabilityResultsText.SetText(lowerProbabilityOdds.ToString("N0") + " in " + upperProbabilityOdds.ToString("N0"));
+            finalProbabilityResultsTextPercentage.SetText((FormatPercentage((float)lowerProbabilityOdds/upperProbabilityOdds)) + " out of 100% \n or \n " + ((float)lowerProbabilityOdds/upperProbabilityOdds).ToString("0.#######") + " in 1");
             DisablePausing();
+        }
+        
+        string FormatPercentage(float value)
+        {
+            if (value == 0f)
+                return "0%";
+
+            float percent = value * 100f;
+            float abs = Mathf.Abs(percent);
+
+            if (abs >= 1f)
+                return percent.ToString("0.##") + "%"; // Up to 2 decimals
+            if (abs >= 0.01f)
+                return percent.ToString("0.###") + "%"; // Up to 3 decimals
+            
+            return percent.ToString("0.######") + "%"; // Up to 6 decimals
+
+        }
+
+        public void PlayOrchestralSting()
+        {
+            DisablePausing();
+            openShopButton.interactable = false;
+            orchestralSting.Play();
+            StartCoroutine(DelayOrchestralStingFocus());
+            
         }
 
         public void TitleScreenScrollUp()
@@ -286,20 +379,94 @@ namespace C__Scripts
             canvasManagerAnimator.SetTrigger("ScrollUpMainMenu");
         }
 
+        public void StartPlayingVictoryMusic()
+        {
+            winMusic.Play();
+            StartCoroutine(DelaySwitchToLoopedMusic());
+        }
+        
+        private IEnumerator DelaySwitchToLoopedMusic()
+        {
+            // Wait until the first clip finishes playing
+            yield return new WaitWhile(() => winMusic.isPlaying);
+
+            // Now switch to the looping track
+            winMusic.clip = winMusicClipPart2;
+            
+            //Enable looping
+            winMusic.loop = true;
+            
+            //Play audio
+            winMusic.Play();
+        }
+
+        private IEnumerator DelayOrchestralStingFocus()
+        {
+            yield return new WaitWhile(() => orchestralSting.isPlaying);
+
+            backgroundMusic.Play();
+            EnableGenerationButton();
+            EnablePausing();
+            openShopButton.interactable = true;
+        }
+
+        // Will optimize inefficient code in a future update
         public void TestCustomOddsValidity()
         {
-            if (int.Parse(lowerBoundEntryField.text) < int.Parse(upperBoundEntryField.text))
+            //If is not null
+            if (lowerBoundEntryField.text != "" && upperBoundEntryField.text != "")
             {
-                SetLowerProbabilityOdds(int.Parse(lowerBoundEntryField.text));
-                SetUpperProbabilityOdds(int.Parse(upperBoundEntryField.text));
-                TitleScreenScrollUp();
-                HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
-                errorText.SetActive(false);
-                EnablePausing();
+                //and is not zero
+                if (int.Parse(lowerBoundEntryField.text) != 0 && int.Parse(upperBoundEntryField.text) != 0)
+                {
+                    //and is not equal to each other
+                    if(int.Parse(lowerBoundEntryField.text) != int.Parse(upperBoundEntryField.text))
+                    {
+                        // and upper is not less than lower bound
+                        if (int.Parse(lowerBoundEntryField.text) < int.Parse(upperBoundEntryField.text))
+                        {
+                            SetLowerProbabilityOdds(int.Parse(lowerBoundEntryField.text));
+                            SetUpperProbabilityOdds(int.Parse(upperBoundEntryField.text));
+                            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+                            errorTextDefault.SetActive(false);
+                            errorTextZero.SetActive(false);
+                            errorTextNull.SetActive(false);
+                            customDifficultyMenu1.SetActive(false);
+                            customDifficultyMenu2.SetActive(true);
+                        }
+                        else
+                        {
+                            errorTextDefault.SetActive(true);
+                            errorTextZero.SetActive(false);
+                            errorTextNull.SetActive(false);
+                            errorTextEqual.SetActive(false);
+
+                        }
+                    }
+                    else
+                    {
+                        errorTextEqual.SetActive(true);
+                        errorTextDefault.SetActive(false);
+                        errorTextZero.SetActive(false);
+                        errorTextNull.SetActive(false);
+                    }
+                    // and is less than lower bound
+
+                }
+                else
+                {
+                    errorTextEqual.SetActive(false);
+                    errorTextZero.SetActive(true);
+                    errorTextDefault.SetActive(false);
+                    errorTextNull.SetActive(false);
+                }
             }
             else
             {
-                errorText.SetActive(true);
+                errorTextEqual.SetActive(false);
+                errorTextNull.SetActive(true);
+                errorTextDefault.SetActive(false);
+                errorTextZero.SetActive(false);
             }
         }
 
@@ -326,6 +493,8 @@ namespace C__Scripts
                 probabilityPoints -= slowAndSteadyCost;
                 slowAndSteadyButton.interactable = false;
                 checkMark.SetActive(true);
+                HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+                UpdateProbabilityPointsText();
             }
         }
         
@@ -334,7 +503,7 @@ namespace C__Scripts
             if (probabilityPoints >= increaseMyOddsUpperCost)
             {
                 probabilityPoints -= increaseMyOddsUpperCost;
-                upperProbabilityOdds -= upperDecrease;
+                DecreaseUpperProbabilityOdds(upperDecrease);
                 HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
                 UpdateProbabilityPointsText();
                 
@@ -353,9 +522,27 @@ namespace C__Scripts
             }
         }
 
+        public bool isProbabilityLessEqualToOnePercent()
+        {
+            if (upperProbabilityOdds >= 100 && GetRandomlyGeneratedNumber() == upperProbabilityOdds)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public void DisablePausing()
         {
             canPause = false;
+        }
+
+        public void ShowPauseMenu()
+        {
+            pauseMenu.SetActive(true);
+        }
+        public void HidePauseMenu()
+        {
+            pauseMenu.SetActive(false);
         }
     }
 }
