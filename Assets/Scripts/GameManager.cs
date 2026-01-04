@@ -44,6 +44,7 @@ namespace C__Scripts
         public TMP_Text customDifficultyHintText;
         public TMP_Text doublePointsDisplayText;
         public TMP_Text luckStarsDisplayText;
+        public TMP_Text fasterCooldownShopDescription;
         public TMP_InputField multiplierInputText;
         public TMP_InputField lowerBoundEntryField;
         public TMP_InputField upperBoundEntryField;
@@ -60,10 +61,15 @@ namespace C__Scripts
         public GameObject customDifficultyMenu2;
         public GameObject UpgradeTokenFolder;
         public GameObject DoublePointsFolder;
+        public GameObject fasterCooldownLock;
         public Button slowAndSteadyButton;
         public Button openShopButton;
+        public Button fasterCooldownShopButton;
+        public Button skipAnimationShopButton;
         public Image upgradeTokenImage;
         public Image doublePointsImage;
+        public float numberSlideInDelay = .2f;
+        public float buttonEnableDelay = .2f;
         public float upperDecrease = .9f;
         private int lowerIncrease = 1;
         private int upgradedSlowAndSteadyDecreaseValue = 1;
@@ -78,9 +84,12 @@ namespace C__Scripts
         public long slowAndSteadyCost = 1000;
         public long increaseMyOddsUpperCost = 10000;
         public long increaseMyOddsLowerCost = 5000;
+        public int fasterCooldownPrice = 5;
         public int upgradeCoins;
+        
         //Other shop descriptions update with their modifier number 
         private int upperDecreaseShopDescriptionValue = 10;
+        
         public int upgradeCoinGenerationValue;
         public long doublePointsAmount;
         public long displayDoublePointsAmount;
@@ -471,13 +480,13 @@ namespace C__Scripts
             else
             {
                 SlideOutGeneratedText();
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(numberSlideInDelay);
                 UpdateGeneratedNumberText();
                 SlideInGeneratedText();
                 CheckIfWinGame();
             }
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(buttonEnableDelay);
             
             // Condition to see if the orchestral sting should play
             if (gameWin == false && !isProbabilityLessEqualToOnePercent())
@@ -825,6 +834,44 @@ namespace C__Scripts
             displayDoublePointsAmount = doublePointsAmount;
             UpdateUpgradeCoinCountText();
             UpdateDoublePointsDisplay();
+        }
+
+        public void AttemptPurchaseSkipAnimation()
+        {
+            if (upgradeCoins <= 4) return;
+            
+            UnlockFasterCooldown();
+            upgradeCoins -= 5;
+            canvasAnimator.SetBool("NoSlideOut", true);
+            numberSlideInDelay = 0f;
+            buttonEnableDelay = 0.35f;
+            skipAnimationShopButton.interactable = false;
+            UpdateUpgradeCoinCountText();
+        }
+
+        private void UnlockFasterCooldown()
+        {
+            fasterCooldownLock.gameObject.SetActive(false);
+            fasterCooldownShopButton.interactable = true;
+            fasterCooldownShopDescription.text = "Slightly decreases the cooldown after generating a number.";
+        }
+
+        public void AttemptPurchaseFasterCooldown()
+        {
+            if (upgradeCoins <= 4) return;
+
+            if (buttonEnableDelay <= .05)
+            {
+                buttonEnableDelay = 0;
+                upgradeCoins -= 5;
+                fasterCooldownShopButton.interactable = false;
+                UpdateUpgradeCoinCountText();
+                return;
+            }
+
+            buttonEnableDelay -= .05f;
+            upgradeCoins -= 5;
+            UpdateUpgradeCoinCountText();
         }
 
         public void UpdateDoublePointsDisplay()
