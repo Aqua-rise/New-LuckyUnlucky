@@ -344,24 +344,24 @@ namespace C__Scripts
                     upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .5f;
                     break;
                 case 3:
-                    upgradeCoinGenerationValue += 20;
-                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .2f;
-                    break;
-                case 4:
                     upgradeCoinGenerationValue += 10;
                     upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .1f;
                     break;
+                case 4:
+                    upgradeCoinGenerationValue += 8;
+                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .08f;
+                    break;
                 case 5:
-                    upgradeCoinGenerationValue += 5;
-                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .05f;
+                    upgradeCoinGenerationValue += 6;
+                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .06f;
                     break;
                 case 6:
-                    upgradeCoinGenerationValue += 2;
-                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .02f;
+                    upgradeCoinGenerationValue += 4;
+                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .04f;
                     break;
                 default:
-                    upgradeCoinGenerationValue += 1;
-                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .01f;
+                    upgradeCoinGenerationValue += 2;
+                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .02f;
                     break;
             }
 
