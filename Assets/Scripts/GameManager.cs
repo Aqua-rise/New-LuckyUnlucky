@@ -45,6 +45,8 @@ namespace C__Scripts
         public TMP_Text doublePointsDisplayText;
         public TMP_Text luckStarsDisplayText;
         public TMP_Text fasterCooldownShopDescription;
+        public TMP_Text tokenGeneratorShopDescription;
+        public TMP_Text tokenGeneratorShopCostText;
         public TMP_InputField multiplierInputText;
         public TMP_InputField lowerBoundEntryField;
         public TMP_InputField upperBoundEntryField;
@@ -66,11 +68,12 @@ namespace C__Scripts
         public Button openShopButton;
         public Button fasterCooldownShopButton;
         public Button skipAnimationShopButton;
+        public Button tokenGeneratorButton;
         public Image upgradeTokenImage;
         public Image doublePointsImage;
         public float numberSlideInDelay = .2f;
         public float buttonEnableDelay = .2f;
-        public float upperDecrease = .9f;
+        public float upperDecrease = .99f;
         private int lowerIncrease = 1;
         private int upgradedSlowAndSteadyDecreaseValue = 1;
         private int currentSlowAndSteadyDecreaseValue = 0;
@@ -84,11 +87,14 @@ namespace C__Scripts
         public long slowAndSteadyCost = 1000;
         public long increaseMyOddsUpperCost = 10000;
         public long increaseMyOddsLowerCost = 5000;
+        public long tokenGeneratorCost;
         public int fasterCooldownPrice = 5;
         public int upgradeCoins;
+        public int upgradedTokenGeneratorValue = 1;
+        public int currentTokenGeneratorValue = 0;
         
         //Other shop descriptions update with their modifier number 
-        private int upperDecreaseShopDescriptionValue = 10;
+        public int upperDecreaseShopDescriptionValue = 1;
         
         public int upgradeCoinGenerationValue;
         public long doublePointsAmount;
@@ -107,6 +113,7 @@ namespace C__Scripts
         public bool isDoublePointsActive;
         public bool wasDoublePointsJustBought;
         public bool secretShopLock;
+        public bool isTokenGeneratorOn;
         
         public Vector3 startingPosition = new Vector3(442, -215, 0);
         
@@ -163,27 +170,33 @@ namespace C__Scripts
                 case "easy":
                     upperProbabilityOdds = easyProbability;
                     increaseMyOddsUpperCost = 10000;
-                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("C0"));
                     increaseMyOddsLowerCost = 5000;
-                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("C0"));
                     slowAndSteadyCost = 1000;
-                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("C0"));
+                    tokenGeneratorCost = 100000;
+                    tokenGeneratorShopCostText.SetText(tokenGeneratorCost.ToString("C0"));
                     break;
                 case "medium": upperProbabilityOdds = mediumProbability;
                     increaseMyOddsUpperCost = 50000;
-                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("C0"));
                     increaseMyOddsLowerCost = 10000;
-                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("C0"));
                     slowAndSteadyCost = 5000;
-                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("C0"));
+                    tokenGeneratorCost = 500000;
+                    tokenGeneratorShopCostText.SetText(tokenGeneratorCost.ToString("C0"));
                     break;
                 case "hard": upperProbabilityOdds = hardProbability;
                     increaseMyOddsUpperCost = 500000;
-                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+                    increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("C0"));
                     increaseMyOddsLowerCost = 250000;
-                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+                    increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("C0"));
                     slowAndSteadyCost = 100000;
-                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+                    slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("C0"));
+                    tokenGeneratorCost = 1000000;
+                    tokenGeneratorShopCostText.SetText(tokenGeneratorCost.ToString("C0"));
                     break;
             }
             GameStart();
@@ -199,11 +212,11 @@ namespace C__Scripts
                 multiplier = 1;
             }
             increaseMyOddsUpperCost = upperProbabilityOdds * multiplier;
-            increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("N0"));
+            increaseUpperOddsShopCostText.SetText(increaseMyOddsUpperCost.ToString("C0"));
             increaseMyOddsLowerCost = upperProbabilityOdds * multiplier / 2;
-            increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("N0"));
+            increaseLowerOddsShopCostText.SetText(increaseMyOddsLowerCost.ToString("C0"));
             slowAndSteadyCost = upperProbabilityOdds;
-            slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("N0"));
+            slowAndSteadyShopCostText.SetText(slowAndSteadyCost.ToString("C0"));
             GameStart();
         }
 
@@ -348,20 +361,20 @@ namespace C__Scripts
                     upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .1f;
                     break;
                 case 4:
-                    upgradeCoinGenerationValue += 8;
-                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .08f;
-                    break;
-                case 5:
                     upgradeCoinGenerationValue += 6;
                     upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .06f;
                     break;
-                case 6:
+                case 5:
                     upgradeCoinGenerationValue += 4;
                     upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .04f;
                     break;
-                default:
+                case 6:
                     upgradeCoinGenerationValue += 2;
                     upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .02f;
+                    break;
+                default:
+                    upgradeCoinGenerationValue += 1;
+                    upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + .01f;
                     break;
             }
 
@@ -739,22 +752,36 @@ namespace C__Scripts
 
         public void AttemptPurchaseUpgradeMyOddsUpper()
         {
-            if (upgradeCoins <= 0) return;
-
+            if (upgradeCoins <= 0 && upperDecreaseShopDescriptionValue < 9) return;
 
             switch (upperDecreaseShopDescriptionValue)
             {
-                case 10:
-                    upperDecrease = .8f;
+                case 1:
+                    upperDecrease = .98f;
                     break;
-                case 20:
-                    upperDecrease = .7f;
+                case 2:
+                    upperDecrease = .97f;
                     break;
-                case 30:
-                    upperDecrease = .6f;
+                case 3:
+                    upperDecrease = .96f;
                     break;
-                case 40:
-                    upperDecrease = .5f;
+                case 4:
+                    upperDecrease = .95f;
+                    break;
+                case 5:
+                    upperDecrease = .94f;
+                    break;
+                case 6:
+                    upperDecrease = .93f;
+                    break;
+                case 7:
+                    upperDecrease = .92f;
+                    break;
+                case 8:
+                    upperDecrease = .91f;
+                    break;
+                case 9:
+                    upperDecrease = .9f;
                     break;
                 default:
                     return;
@@ -768,7 +795,7 @@ namespace C__Scripts
 
         private void UpdateIncreaseMyOddsUpperShopDescription()
         {
-            upperDecreaseShopDescriptionValue += 10;
+            upperDecreaseShopDescriptionValue += 1;
             increaseUpperOddsShopDescriptionText.text =
                 "Decreases the upper bound by " + upperDecreaseShopDescriptionValue + "%.";
         }
@@ -872,6 +899,91 @@ namespace C__Scripts
             buttonEnableDelay -= .05f;
             upgradeCoins -= 5;
             UpdateUpgradeCoinCountText();
+        }
+
+        public void AttemptPurchaseTokenGenerator()
+        {
+            if (probabilityPoints < tokenGeneratorCost) return;
+
+            if (!isTokenGeneratorOn)
+            {
+                isTokenGeneratorOn = true;
+                probabilityPoints -= tokenGeneratorCost;
+                currentTokenGeneratorValue = upgradedTokenGeneratorValue;
+                tokenGeneratorButton.interactable = false;
+                UpdateTokenGeneratorShopDescription();
+                UpdateProbabilityPointsText();
+                GenerateTokenPercentageInitializer();
+                return;
+            }
+            
+            probabilityPoints -= tokenGeneratorCost;
+            currentTokenGeneratorValue = upgradedTokenGeneratorValue;
+            tokenGeneratorButton.interactable = false;
+            UpdateProbabilityPointsText();
+            UpdateTokenGeneratorShopDescription();
+        }
+
+        private void GenerateTokenPercentageInitializer()
+        {
+            if (isTokenGeneratorOn)
+            {
+                StartCoroutine(GenerateTokenPercentage());
+            }
+        }
+
+        private IEnumerator GenerateTokenPercentage()
+        {
+            yield return new WaitForSeconds(1f);
+            HandleUpgradeCoinGeneration();
+            Debug.Log("Generating Token Percentage...");
+        }
+        
+        private void HandleUpgradeCoinGeneration()
+        {
+            var upgradeTokenImageNewValue = 0f;
+
+           
+            upgradeCoinGenerationValue += currentTokenGeneratorValue;
+            upgradeTokenImageNewValue = upgradeTokenImage.fillAmount + (currentTokenGeneratorValue/100f);
+            
+
+            //If greater than or equal to 100, subtract 100, keep the change, and give a token, and play sfx
+            if (upgradeCoinGenerationValue >= 100)
+            {
+                upgradeCoins++;
+                upgradeCoinGenerationValue -= 100;
+                upgradeTokenImageNewValue -= 1;
+                UpdateUpgradeCoinCountText();
+                audioManager.PlayUpgradeTokenSound();
+            }
+
+            upgradeTokenImage.fillAmount = upgradeTokenImageNewValue;
+            
+            //Recursive Call Not sure if this works properly
+            StartCoroutine(GenerateTokenPercentage());
+
+        }
+
+        public void AttemptPurchaseUpgradeTokenGenerator()
+        {
+            if (upgradeCoins <= 0) return;
+            
+            if (upgradedTokenGeneratorValue < 10)
+            {
+                upgradedTokenGeneratorValue += 1;
+                upgradeCoins--;
+                tokenGeneratorButton.interactable = true;
+                UpdateUpgradeCoinCountText();
+                UpdateTokenGeneratorShopDescription();
+            }
+        }
+
+        private void UpdateTokenGeneratorShopDescription()
+        {
+            tokenGeneratorShopDescription.text = "When purchased, generates a token by " + upgradedTokenGeneratorValue +
+                                                 "% every second\n(Currently " + currentTokenGeneratorValue +
+                                                 "% per second)";
         }
 
         public void UpdateDoublePointsDisplay()
