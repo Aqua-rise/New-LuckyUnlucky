@@ -88,18 +88,15 @@ namespace C__Scripts
         public long increaseMyOddsUpperCost = 10000;
         public long increaseMyOddsLowerCost = 5000;
         public long tokenGeneratorCost;
-        public int fasterCooldownPrice = 5;
         public int upgradeCoins;
         public int upgradedTokenGeneratorValue = 1;
         public int currentTokenGeneratorValue = 0;
+        public int currentPointMultiplier = 1;
         
         //Other shop descriptions update with their modifier number 
         public int upperDecreaseShopDescriptionValue = 1;
         
         public int upgradeCoinGenerationValue;
-        public long doublePointsAmount;
-        public long displayDoublePointsAmount;
-        public long maximumDoublePointsAmount;
 
         public int luckStars;
         
@@ -110,8 +107,8 @@ namespace C__Scripts
         public bool canPause;
         public bool decrementUpperBound;
         public bool gameWin;
-        public bool isDoublePointsActive;
-        public bool wasDoublePointsJustBought;
+        public bool isPointMultiplierActive;
+        public bool wasPointMultiplierJustBought;
         public bool secretShopLock;
         public bool isTokenGeneratorOn;
         
@@ -157,10 +154,6 @@ namespace C__Scripts
             HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
             EnablePausing();
             UpdatePurchasePointsShopText();
-            if (lowerProbabilityOdds != 1)
-            {
-                UpdateDoublePointsShopText();
-            }
         }
         
         public void HandleDifficulty(string difficulty)
@@ -297,9 +290,9 @@ namespace C__Scripts
         public void UpdateGeneratedNumberText()
         {
             //Will automatically generate a new number and update at the same time
-            if (isDoublePointsActive)
+            if (isPointMultiplierActive)
             {
-                generatedNumberText.SetText(GenerateRandomNumber().ToString("N0") + "x2");
+                generatedNumberText.SetText(GenerateRandomNumber().ToString("N0") + "x" +currentPointMultiplier);
                 return;
             }
             generatedNumberText.SetText(GenerateRandomNumber().ToString("N0"));
@@ -341,8 +334,6 @@ namespace C__Scripts
         //Numbers generated increase the coin generation value by an amount inversely proportional to the size of the number generated
         private void HandleUpgradeCoinGeneration(long numDigits)
         {
-            //Upgrade coin generation disabled when double points is active
-            if(isDoublePointsActive)return;
 
             var upgradeTokenImageNewValue = 0f;
             
@@ -431,36 +422,20 @@ namespace C__Scripts
 
         public void StoreProbabilityPoints()
         {
-            //if double points was just purchased, it only starts applying to the next number generated
-            if (wasDoublePointsJustBought)
+            //if point multiplier was just purchased, it only starts applying to the next number generated
+            if (wasPointMultiplierJustBought)
             {
                 probabilityPoints += GetRandomlyGeneratedNumber();
                 totalAccumulatedPoints += GetRandomlyGeneratedNumber();
-                wasDoublePointsJustBought = false;
-                displayDoublePointsAmount--;
-                UpdateDoublePointsDisplay();
+                wasPointMultiplierJustBought = false;
                 return;
             }
             
             // Make sure this happens before a new number is generated
-            if (isDoublePointsActive && doublePointsAmount > 0)
+            if (isPointMultiplierActive)
             {
-                probabilityPoints += GetRandomlyGeneratedNumber() * 2;
-                totalAccumulatedPoints += GetRandomlyGeneratedNumber() * 2;
-                
-                if (doublePointsAmount == 1)
-                {
-                    isDoublePointsActive = false;
-                    doublePointsAmount = 0;
-                    DoublePointsFolder.SetActive(false);
-                    UpgradeTokenFolder.SetActive(true);
-                }
-                else
-                {
-                    doublePointsAmount--;
-                    displayDoublePointsAmount--;
-                    UpdateDoublePointsDisplay();
-                }
+                probabilityPoints += GetRandomlyGeneratedNumber() * currentPointMultiplier;
+                totalAccumulatedPoints += GetRandomlyGeneratedNumber() * currentPointMultiplier;
                 return;
             } 
             probabilityPoints += GetRandomlyGeneratedNumber();
@@ -832,9 +807,9 @@ namespace C__Scripts
             purchasePointsShopDescription.text = "Instantly obtain " + staticUpperProbabilityOdds.ToString("N0") + " probability points \n(Not compatible with Double Points)";
         }
 
-        public void UpdateDoublePointsShopText()
+        private void UpdatePointMultiplierShopText()
         {
-            doublePointsShopDescription.text = "Doubles the points gained for the next " + lowerProbabilityOdds.ToString("N0") + " generations. \nDisables Upgrade Token Generation while active.";
+            doublePointsShopDescription.text = "Multiplies the points gained when generating numbers by "+ (currentPointMultiplier+1) +"x\n(Currently "+currentPointMultiplier+"x)";
         }
 
         public void AttemptPurchasePoints()
@@ -847,20 +822,16 @@ namespace C__Scripts
             UpdateUpgradeCoinCountText();
         }
 
-        public void AttemptPurchaseDoublePoints()
+        public void AttemptPurchasePointMultiplier()
         {
-            if (upgradeCoins <= 0) return;
+            if (upgradeCoins <= 4) return;
 
-            upgradeCoins--;
-            doublePointsAmount = lowerProbabilityOdds;
-            isDoublePointsActive = true;
-            wasDoublePointsJustBought = true;
-            DoublePointsFolder.SetActive(true);
-            UpgradeTokenFolder.SetActive(false);
-            maximumDoublePointsAmount = doublePointsAmount;
-            displayDoublePointsAmount = doublePointsAmount;
+            upgradeCoins -= 5;
+            isPointMultiplierActive = true;
+            wasPointMultiplierJustBought = true;
+            currentPointMultiplier++;
             UpdateUpgradeCoinCountText();
-            UpdateDoublePointsDisplay();
+            UpdatePointMultiplierShopText();
         }
 
         public void AttemptPurchaseSkipAnimation()
@@ -960,7 +931,7 @@ namespace C__Scripts
 
             upgradeTokenImage.fillAmount = upgradeTokenImageNewValue;
             
-            //Recursive Call Not sure if this works properly
+            //Temporary Recursive Call
             StartCoroutine(GenerateTokenPercentage());
 
         }
@@ -984,12 +955,6 @@ namespace C__Scripts
             tokenGeneratorShopDescription.text = "When purchased, generates a token by " + upgradedTokenGeneratorValue +
                                                  "% every second\n(Currently " + currentTokenGeneratorValue +
                                                  "% per second)";
-        }
-
-        public void UpdateDoublePointsDisplay()
-        {
-            doublePointsImage.fillAmount = (float)displayDoublePointsAmount / maximumDoublePointsAmount;
-            doublePointsDisplayText.text = "x" + displayDoublePointsAmount;
         }
 
         public bool isProbabilityLessEqualToOnePercent()
