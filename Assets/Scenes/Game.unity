@@ -6401,7 +6401,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Increase My Odds (Upper Bound)
+  m_text: Upper Bound
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -6428,8 +6428,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 31
-  m_fontSizeBase: 31
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -7852,7 +7852,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -27, y: -178}
-  m_SizeDelta: {x: 344.4386, y: 145.06}
+  m_SizeDelta: {x: 344.4386, y: 110.89}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &521984631
 MonoBehaviour:
@@ -9230,7 +9230,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 54181fb03eb480c4f8de276df4ce82b3, type: 3}
+  m_Sprite: {fileID: 470955297, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10510,7 +10510,7 @@ GameObject:
   - component: {fileID: 583053400}
   - component: {fileID: 583053399}
   m_Layer: 5
-  m_Name: Slow and Steady Upgrade Icon
+  m_Name: Token Generator Upgrade Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10623,7 +10623,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 54181fb03eb480c4f8de276df4ce82b3, type: 3}
+  m_Sprite: {fileID: 470955297, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -14326,7 +14326,7 @@ GameObject:
   - component: {fileID: 833149295}
   - component: {fileID: 833149294}
   m_Layer: 5
-  m_Name: Generate Tokens
+  m_Name: Token Generator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17084,7 +17084,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 54181fb03eb480c4f8de276df4ce82b3, type: 3}
+  m_Sprite: {fileID: 470955297, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -17355,7 +17355,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Increase My Odds (Lower Bound)
+  m_text: Lower Bound
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -17382,8 +17382,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 31
-  m_fontSizeBase: 31
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -18318,7 +18318,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -27, y: 122}
-  m_SizeDelta: {x: 344.4386, y: 145.0596}
+  m_SizeDelta: {x: 344.4386, y: 118.89}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1059203183
 MonoBehaviour:
@@ -30223,6 +30223,16 @@ MonoBehaviour:
   upperProbabilityOdds: 0
   lowerProbabilityOdds: 1
   staticUpperProbabilityOdds: 0
+  shopUpgradeTokenSprites:
+  - {fileID: 470955297, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: 499726129, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: 1044468366, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: -330394860, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: -584319779, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: 1528666582, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: 1842860285, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: 504030556, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
+  - {fileID: 1824812633, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
   probabilityDisplayText: {fileID: 1560543463}
   generatedNumberText: {fileID: 770591444}
   probabilityPointsText: {fileID: 1612938770}
@@ -30249,6 +30259,10 @@ MonoBehaviour:
   fasterCooldownShopDescription: {fileID: 1859017585}
   tokenGeneratorShopDescription: {fileID: 1634827500}
   tokenGeneratorShopCostText: {fileID: 1087559292}
+  increaseUpperOddsShopUpgradeName: {fileID: 421427156}
+  increaseLowerOddsShopUpgradeName: {fileID: 1003259724}
+  slowAndSteadyShopUpgradeName: {fileID: 374155971}
+  tokenGeneratorShopUpgradeName: {fileID: 1175730827}
   multiplierInputText: {fileID: 256087295}
   lowerBoundEntryField: {fileID: 1512340599}
   upperBoundEntryField: {fileID: 78190582}
@@ -30266,6 +30280,10 @@ MonoBehaviour:
   UpgradeTokenFolder: {fileID: 258467982}
   DoublePointsFolder: {fileID: 805884714}
   fasterCooldownLock: {fileID: 1815919793}
+  increaseUpperOddsShopUpgradeButton: {fileID: 980899865}
+  increaseLowerOddsShopUpgradeButton: {fileID: 556731963}
+  slowAndSteadyShopUpgradeButton: {fileID: 2129407920}
+  tokenGeneratorShopUpgradeButton: {fileID: 583053397}
   slowAndSteadyButton: {fileID: 1853848513}
   openShopButton: {fileID: 1931789152}
   fasterCooldownShopButton: {fileID: 1328080616}
@@ -30273,6 +30291,10 @@ MonoBehaviour:
   tokenGeneratorButton: {fileID: 833149294}
   upgradeTokenImage: {fileID: 1084901455}
   doublePointsImage: {fileID: 2057468201}
+  slowAndSteadyShopUpgradeImage: {fileID: 2129407922}
+  increaseLowerOddsShopUpgradeImage: {fileID: 556731965}
+  increaseUpperOddsShopUpgradeImage: {fileID: 980899867}
+  tokenGeneratorShopUpgradeImage: {fileID: 583053400}
   numberSlideInDelay: 0.2
   buttonEnableDelay: 0.2
   upperDecrease: 0.99
@@ -30284,14 +30306,16 @@ MonoBehaviour:
   increaseMyOddsUpperCost: 0
   increaseMyOddsLowerCost: 0
   tokenGeneratorCost: 0
-  fasterCooldownPrice: 5
   upgradeCoins: 0
   upgradedTokenGeneratorValue: 1
   currentTokenGeneratorValue: 0
   currentPointMultiplier: 1
+  increaseUpperOddsUpgradeLevel: 1
+  increaseLowerOddsUpgradeLevel: 1
+  slowAndSteadyUpgradeLevel: 1
+  tokenGeneratorUpgradeLevel: 1
   upperDecreaseShopDescriptionValue: 1
   upgradeCoinGenerationValue: 0
-  maximumDoublePointsAmount: 0
   luckStars: 0
   canvasAnimator: {fileID: 699601427}
   canvasManagerAnimator: {fileID: 936387322}
@@ -33650,7 +33674,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 54181fb03eb480c4f8de276df4ce82b3, type: 3}
+  m_Sprite: {fileID: 470955297, guid: 1089695d25ddb97a69a8d96cd197c025, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

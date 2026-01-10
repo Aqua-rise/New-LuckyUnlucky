@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,8 @@ namespace C__Scripts
         
         //This variable holds the value of the upper probability and is used to know what that max value was.
         public long staticUpperProbabilityOdds;
+
+        public List<Sprite> shopUpgradeTokenSprites;
         
         public TMP_Text probabilityDisplayText;
         public TMP_Text generatedNumberText;
@@ -47,6 +50,10 @@ namespace C__Scripts
         public TMP_Text fasterCooldownShopDescription;
         public TMP_Text tokenGeneratorShopDescription;
         public TMP_Text tokenGeneratorShopCostText;
+        public TMP_Text increaseUpperOddsShopUpgradeName;
+        public TMP_Text increaseLowerOddsShopUpgradeName;
+        public TMP_Text slowAndSteadyShopUpgradeName;
+        public TMP_Text tokenGeneratorShopUpgradeName;
         public TMP_InputField multiplierInputText;
         public TMP_InputField lowerBoundEntryField;
         public TMP_InputField upperBoundEntryField;
@@ -64,6 +71,10 @@ namespace C__Scripts
         public GameObject UpgradeTokenFolder;
         public GameObject DoublePointsFolder;
         public GameObject fasterCooldownLock;
+        public GameObject increaseUpperOddsShopUpgradeButton;
+        public GameObject increaseLowerOddsShopUpgradeButton;
+        public GameObject slowAndSteadyShopUpgradeButton;
+        public GameObject tokenGeneratorShopUpgradeButton;
         public Button slowAndSteadyButton;
         public Button openShopButton;
         public Button fasterCooldownShopButton;
@@ -71,6 +82,10 @@ namespace C__Scripts
         public Button tokenGeneratorButton;
         public Image upgradeTokenImage;
         public Image doublePointsImage;
+        public Image slowAndSteadyShopUpgradeImage;
+        public Image increaseLowerOddsShopUpgradeImage;
+        public Image increaseUpperOddsShopUpgradeImage;
+        public Image tokenGeneratorShopUpgradeImage;
         public float numberSlideInDelay = .2f;
         public float buttonEnableDelay = .2f;
         public float upperDecrease = .99f;
@@ -92,6 +107,11 @@ namespace C__Scripts
         public int upgradedTokenGeneratorValue = 1;
         public int currentTokenGeneratorValue = 0;
         public int currentPointMultiplier = 1;
+        public int increaseUpperOddsUpgradeLevel = 1;
+        public int increaseLowerOddsUpgradeLevel = 1;
+        public int slowAndSteadyUpgradeLevel = 1;
+        public int tokenGeneratorUpgradeLevel = 1;
+        
         
         //Other shop descriptions update with their modifier number 
         public int upperDecreaseShopDescriptionValue = 1;
@@ -695,14 +715,23 @@ namespace C__Scripts
         }
         public void AttemptPurchaseUpgradeSlowAndSteady()
         {
-            if (upgradeCoins <= 0) return;
-            upgradeCoins--;
+            if (upgradeCoins < slowAndSteadyUpgradeLevel) return;
+            
+            upgradeCoins-= slowAndSteadyUpgradeLevel;
+            slowAndSteadyUpgradeLevel++;
+            
             upgradedSlowAndSteadyDecreaseValue++;
             slowAndSteadyCost += staticUpperProbabilityOdds;
             slowAndSteadyButton.interactable = true;
             checkMark.SetActive(false);
             UpdateUpgradeCoinCountText();
             UpdateSlowAndSteadyPriceText();
+            UpdateSpecificShopUpgradeName(slowAndSteadyShopUpgradeName, slowAndSteadyShopUpgradeImage, "Slow and Steady", slowAndSteadyUpgradeLevel);
+
+            if (slowAndSteadyUpgradeLevel >= 10)
+            {
+                slowAndSteadyShopUpgradeButton.SetActive(false);
+            }
             
             
             slowAndSteadyShopDescriptionText.text =
@@ -727,44 +756,22 @@ namespace C__Scripts
 
         public void AttemptPurchaseUpgradeMyOddsUpper()
         {
-            if (upgradeCoins <= 0 && upperDecreaseShopDescriptionValue < 9) return;
+            if (upgradeCoins < increaseUpperOddsUpgradeLevel) return;
 
-            switch (upperDecreaseShopDescriptionValue)
-            {
-                case 1:
-                    upperDecrease = .98f;
-                    break;
-                case 2:
-                    upperDecrease = .97f;
-                    break;
-                case 3:
-                    upperDecrease = .96f;
-                    break;
-                case 4:
-                    upperDecrease = .95f;
-                    break;
-                case 5:
-                    upperDecrease = .94f;
-                    break;
-                case 6:
-                    upperDecrease = .93f;
-                    break;
-                case 7:
-                    upperDecrease = .92f;
-                    break;
-                case 8:
-                    upperDecrease = .91f;
-                    break;
-                case 9:
-                    upperDecrease = .9f;
-                    break;
-                default:
-                    return;
-            }
 
-            upgradeCoins--;
+            upperDecrease = 1 - (upperDecreaseShopDescriptionValue/100f) - .01f;
+
+            upgradeCoins-= increaseUpperOddsUpgradeLevel;
+            increaseUpperOddsUpgradeLevel++;
             UpdateIncreaseMyOddsUpperShopDescription();
             UpdateUpgradeCoinCountText();
+            UpdateSpecificShopUpgradeName(increaseUpperOddsShopUpgradeName, increaseUpperOddsShopUpgradeImage,"Upper Bound", increaseUpperOddsUpgradeLevel);
+
+            
+            if (increaseUpperOddsUpgradeLevel >= 10)
+            {
+                increaseUpperOddsShopUpgradeButton.SetActive(false);
+            }
             
         }
 
@@ -788,12 +795,21 @@ namespace C__Scripts
         }
         public void AttemptPurchaseUpgradeMyOddsLower()
         {
-            if (upgradeCoins <= 0) return;
+            if (upgradeCoins < increaseLowerOddsUpgradeLevel) return;
             
-            upgradeCoins--;
+            upgradeCoins -= increaseLowerOddsUpgradeLevel;
+            increaseLowerOddsUpgradeLevel++;
+            
             lowerIncrease++;
             UpdateIncreaseMyOddsLowerShopDescription();
             UpdateUpgradeCoinCountText();
+            UpdateSpecificShopUpgradeName(increaseLowerOddsShopUpgradeName, increaseLowerOddsShopUpgradeImage, "Lower Bound", increaseLowerOddsUpgradeLevel);
+
+            
+            if (increaseLowerOddsUpgradeLevel >= 10)
+            {
+                increaseLowerOddsShopUpgradeButton.SetActive(false);
+            }
         }
 
         private void UpdateIncreaseMyOddsLowerShopDescription()
@@ -938,16 +954,22 @@ namespace C__Scripts
 
         public void AttemptPurchaseUpgradeTokenGenerator()
         {
-            if (upgradeCoins <= 0) return;
+            if (upgradeCoins < tokenGeneratorUpgradeLevel) return;
             
-            if (upgradedTokenGeneratorValue < 10)
+            upgradedTokenGeneratorValue += 1;
+            upgradeCoins -= tokenGeneratorUpgradeLevel;
+            tokenGeneratorUpgradeLevel++;
+            tokenGeneratorButton.interactable = true;
+            UpdateUpgradeCoinCountText();
+            UpdateTokenGeneratorShopDescription();
+            UpdateSpecificShopUpgradeName(tokenGeneratorShopUpgradeName, tokenGeneratorShopUpgradeImage, "Token Generator", tokenGeneratorUpgradeLevel);
+
+            
+            if (tokenGeneratorUpgradeLevel >= 10)
             {
-                upgradedTokenGeneratorValue += 1;
-                upgradeCoins--;
-                tokenGeneratorButton.interactable = true;
-                UpdateUpgradeCoinCountText();
-                UpdateTokenGeneratorShopDescription();
+                tokenGeneratorShopUpgradeButton.SetActive(false);
             }
+            
         }
 
         private void UpdateTokenGeneratorShopDescription()
@@ -988,9 +1010,46 @@ namespace C__Scripts
             luckStarsDisplayText.SetText("x" + luckStars.ToString("N0"));
         }*/
 
-        public void ToggleReducedAnimations(bool value)
+        public void UpdateSpecificShopUpgradeName(TMP_Text textComponent, Image upgradeButtonImage, string upgradeName, int upgradeLevel)
         {
-            canvasAnimator.SetBool("NoSlideOut", value);
+            if (upgradeLevel <= 9)
+            {
+               upgradeButtonImage.sprite = shopUpgradeTokenSprites[upgradeLevel - 1]; 
+            }
+            
+            
+            switch (upgradeLevel)
+            {
+                case 2:
+                    textComponent.text = upgradeName + " II";
+                    break;
+                case 3:
+                    textComponent.text = upgradeName + " III";
+                    break;
+                case 4:
+                    textComponent.text = upgradeName + " IV";
+                    break;
+                case 5:
+                    textComponent.text = upgradeName + " V";
+                    break;
+                case 6:
+                    textComponent.text = upgradeName + " VI";
+                    break;
+                case 7:
+                    textComponent.text = upgradeName + " VII";
+                    break;
+                case 8:
+                    textComponent.text = upgradeName + " VIII";
+                    break;
+                case 9:
+                    textComponent.text = upgradeName + " IX";
+                    break;
+                case 10:
+                    textComponent.text = upgradeName + " X";
+                    break;
+                
+            }
         }
+        
     }
 }
