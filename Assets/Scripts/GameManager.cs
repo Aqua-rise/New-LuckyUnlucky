@@ -76,7 +76,8 @@ namespace C__Scripts
         public GameObject slowAndSteadyShopUpgradeButton;
         public GameObject tokenGeneratorShopUpgradeButton;
         public Button slowAndSteadyButton;
-        public Button openShopButton;
+        public Button openPointShopButton;
+        public Button openTokenShopButton;
         public Button fasterCooldownShopButton;
         public Button skipAnimationShopButton;
         public Button tokenGeneratorButton;
@@ -555,7 +556,8 @@ namespace C__Scripts
             backgroundMusic.Stop();
             StartPlayingVictoryMusic();
             seeResultsButton.SetActive(true);
-            openShopButton.interactable = false;
+            openPointShopButton.interactable = false;
+            openTokenShopButton.interactable = false;
             accumulatedPointsText.SetText(totalAccumulatedPoints.ToString("N0"));
             numAttemptsText.SetText(numAttempts.ToString("N0"));
             finalProbabilityResultsText.SetText(lowerProbabilityOdds.ToString("N0") + " in " + upperProbabilityOdds.ToString("N0"));
@@ -583,7 +585,8 @@ namespace C__Scripts
         public void PlayOrchestralSting()
         {
             DisablePausing();
-            openShopButton.interactable = false;
+            openPointShopButton.interactable = false;
+            openTokenShopButton.interactable = false;
             orchestralSting.Play();
             StartCoroutine(DelayOrchestralStingFocus());
             
@@ -622,7 +625,8 @@ namespace C__Scripts
             backgroundMusic.Play();
             EnableGenerationButton();
             EnablePausing();
-            openShopButton.interactable = true;
+            openPointShopButton.interactable = true;
+            openTokenShopButton.interactable = true;
         }
         
         public void TestCustomOddsValidity()

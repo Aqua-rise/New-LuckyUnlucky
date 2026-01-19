@@ -1,12 +1,14 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 
 namespace C__Scripts
 {
     public class AudioManager : MonoBehaviour
     {
+        public AudioMixer audioMixer;
         public Slider menuVolumeSlider;
         public AudioSource tambourine;
         public AudioSource bass;
@@ -133,6 +135,17 @@ namespace C__Scripts
             {
                 guitar.volume = volume;
             }
+        }
+        
+        public void SetMusicVolume(float value)
+        {
+            //Calculated to translate values from the slider
+            audioMixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
+        }
+        public void SetSfxVolume(float value)
+        {
+            //Calculated to translate values from the slider
+            audioMixer.SetFloat("SFXVolume", Mathf.Log10(value) * 20);
         }
 
 
