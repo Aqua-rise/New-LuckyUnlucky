@@ -54,6 +54,7 @@ namespace C__Scripts
         public TMP_Text increaseLowerOddsShopUpgradeName;
         public TMP_Text slowAndSteadyShopUpgradeName;
         public TMP_Text tokenGeneratorShopUpgradeName;
+        public TMP_Text fasterCooldownShopCostText;
         public TMP_InputField multiplierInputText;
         public TMP_InputField lowerBoundEntryField;
         public TMP_InputField upperBoundEntryField;
@@ -516,8 +517,7 @@ namespace C__Scripts
             StoreProbabilityPoints();
             
             UpdateProbabilityPointsText();
-            var coroutine = PlaySwitchingAnimation();
-            StartCoroutine(coroutine);
+            StartCoroutine(PlaySwitchingAnimation());
         }
 
         public void UpdateProbabilityPointsText()
@@ -551,6 +551,7 @@ namespace C__Scripts
             
             inputLock = true;
             gameWin = true;
+            isTokenGeneratorOn = false;
             DisableGenerationButton();
             canvasAnimator.SetBool("GameWin", true);
             backgroundMusic.Stop();
@@ -627,6 +628,7 @@ namespace C__Scripts
             EnablePausing();
             openPointShopButton.interactable = true;
             openTokenShopButton.interactable = true;
+            
         }
         
         public void TestCustomOddsValidity()
@@ -735,6 +737,7 @@ namespace C__Scripts
             if (slowAndSteadyUpgradeLevel >= 10)
             {
                 slowAndSteadyShopUpgradeButton.SetActive(false);
+                slowAndSteadyShopCostText.text = "Limit Reached";
             }
             
             
@@ -775,6 +778,7 @@ namespace C__Scripts
             if (increaseUpperOddsUpgradeLevel >= 10)
             {
                 increaseUpperOddsShopUpgradeButton.SetActive(false);
+                
             }
             
         }
@@ -883,6 +887,7 @@ namespace C__Scripts
                 buttonEnableDelay = 0;
                 upgradeCoins -= 5;
                 fasterCooldownShopButton.interactable = false;
+                fasterCooldownShopCostText.text = "Limit Reached";
                 UpdateUpgradeCoinCountText();
                 return;
             }
@@ -972,6 +977,7 @@ namespace C__Scripts
             if (tokenGeneratorUpgradeLevel >= 10)
             {
                 tokenGeneratorShopUpgradeButton.SetActive(false);
+                tokenGeneratorShopCostText.text = "Limit Reached";
             }
             
         }
@@ -985,7 +991,7 @@ namespace C__Scripts
 
         public bool isProbabilityLessEqualToOnePercent()
         {
-            if (upperProbabilityOdds >= 100 && GetRandomlyGeneratedNumber() == upperProbabilityOdds)
+            if ((double)lowerProbabilityOdds/upperProbabilityOdds <= 0.01 && GetRandomlyGeneratedNumber() == upperProbabilityOdds)
             {
                 return true;
             }
