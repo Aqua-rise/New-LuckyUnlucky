@@ -166,7 +166,7 @@ namespace C__Scripts
             luckStars = PlayerPrefs.GetInt("stars");
             luckStarsDisplayText.SetText("x" + luckStars.ToString("N0"));
             
-            //Secret Shop Lock Initialization
+            
             
         }
 

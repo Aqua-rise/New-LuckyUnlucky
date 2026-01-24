@@ -9,7 +9,7 @@ namespace C__Scripts
     public class AudioManager : MonoBehaviour
     {
         public AudioMixer audioMixer;
-        public Slider menuVolumeSlider;
+        public Slider menuVolumeSliderSettingsMenu;
         public AudioSource tambourine;
         public AudioSource bass;
         public AudioSource kick;
@@ -43,6 +43,7 @@ namespace C__Scripts
         
         void Start()
         {
+            
             double startTime = AudioSettings.dspTime;
             
             tambourine.PlayScheduled(startTime);
@@ -51,24 +52,25 @@ namespace C__Scripts
             drumset.PlayScheduled(startTime);
             marimba.PlayScheduled(startTime);
             guitar.PlayScheduled(startTime);
+            
         }
         
         public void StartGameButtonPressed()
         {
             //When the game starts, enable the audio for marimba and guitar
 
-            marimba.volume = menuVolumeSlider.value;
+            marimba.volume = menuVolumeSliderSettingsMenu.value;
             _marimbaEnabled = true;
-            guitar.volume = menuVolumeSlider.value;
+            guitar.volume = menuVolumeSliderSettingsMenu.value;
             _guitarEnabled = true;
         }
         public void DifficultySelectButtonPressed()
         {
             //When the difficulty button is pressed, enable the audio for kick and drumset
 
-            kick.volume = menuVolumeSlider.value;
+            kick.volume = menuVolumeSliderSettingsMenu.value;
             _kickEnabled = true;
-            drumset.volume = menuVolumeSlider.value;
+            drumset.volume = menuVolumeSliderSettingsMenu.value;
             _drumsetEnabled = true;
         }
 
@@ -97,11 +99,11 @@ namespace C__Scripts
 
         public void ShopExited()
         {
-            marimba.volume = menuVolumeSlider.value;
+            marimba.volume = menuVolumeSliderSettingsMenu.value;
             _marimbaEnabled = true;
-            guitar.volume = menuVolumeSlider.value;
+            guitar.volume = menuVolumeSliderSettingsMenu.value;
             _guitarEnabled = true;
-            drumset.volume = menuVolumeSlider.value;
+            drumset.volume = menuVolumeSliderSettingsMenu.value;
             _drumsetEnabled = true;
         }
 
@@ -141,11 +143,13 @@ namespace C__Scripts
         {
             //Calculated to translate values from the slider
             audioMixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
+            PlayerPrefs.SetFloat("musicVolume", value);
         }
         public void SetSfxVolume(float value)
         {
             //Calculated to translate values from the slider
             audioMixer.SetFloat("SFXVolume", Mathf.Log10(value) * 20);
+            PlayerPrefs.SetFloat("sfxVolume", value);
         }
 
 
