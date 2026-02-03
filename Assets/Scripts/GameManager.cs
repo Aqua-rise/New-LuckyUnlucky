@@ -15,6 +15,7 @@ namespace C__Scripts
     public class GameManager : MonoBehaviour
     {
         public AudioManager audioManager;
+        public GameModeManager gameModeManager;
         
         public long upperProbabilityOdds;
         public long lowerProbabilityOdds = 1;
@@ -91,6 +92,7 @@ namespace C__Scripts
         public float numberSlideInDelay = .2f;
         public float buttonEnableDelay = .2f;
         public float upperDecrease = .99f;
+        
         private int lowerIncrease = 1;
         private int upgradedSlowAndSteadyDecreaseValue = 1;
         private int currentSlowAndSteadyDecreaseValue = 0;
@@ -129,6 +131,7 @@ namespace C__Scripts
         public bool canPause;
         public bool decrementUpperBound;
         public bool gameWin;
+        public bool gameEnd;
         public bool isPointMultiplierActive;
         public bool wasPointMultiplierJustBought;
         public bool secretShopLock;
@@ -166,7 +169,7 @@ namespace C__Scripts
             luckStars = PlayerPrefs.GetInt("stars");
             luckStarsDisplayText.SetText("x" + luckStars.ToString("N0"));
             
-            //Secret Shop Lock Initialization
+            
             
         }
 
@@ -328,14 +331,49 @@ namespace C__Scripts
                 WinGame();
             }
             
-            //If a max value is reached that has a probability less than or equal to 1%, play the orchestral sting and give one luck star
+            //If a max value is reached that has a probability less than or equal to 1%, play the orchestral sting
+            else if (GetRandomlyGeneratedNumber() == upperProbabilityOdds && (double)lowerProbabilityOdds/upperProbabilityOdds <= 0.01)
+            {
+                backgroundMusic.Pause();
+                PlayOrchestralSting();
+                
+            }
+            
+            else if (gameModeManager.isAttemptsRunning)
+            {
+                if (gameModeManager.gameModeAttemptsValue <= 1)
+                {
+                    gameModeManager.DecreaseRemainingAttempts();
+                    EndGame();
+                }
+                else
+                {
+                    gameModeManager.DecreaseRemainingAttempts();
+                }
+                
+            }
+            
+        }
+
+        private void CheckIfLoseGame()
+        {
+            if (GetRandomlyGeneratedNumber() <= lowerProbabilityOdds)
+            {
+                EndGame();
+            }
+            
+            if (totalAccumulatedPoints >= gameModeManager.gameModeMeterMaxValue)
+            {
+                WinGame();
+            }
+            
+            //If a max value is reached that has a probability less than or equal to 1%, play the orchestral sting
             else if (GetRandomlyGeneratedNumber() == upperProbabilityOdds && (double)lowerProbabilityOdds/upperProbabilityOdds <= 0.01)
             {
                 backgroundMusic.Pause();
                 PlayOrchestralSting();
                 //GiveLuckStar();
             }
-            
         }
 
         public long GenerateRandomNumber()
@@ -391,8 +429,6 @@ namespace C__Scripts
                     break;
             }
 
-            UpdateUpgradeCoinGenerationValueText();
-
             //If greater than or equal to 100, subtract 100, keep the change, and give a token, and play sfx
             if (upgradeCoinGenerationValue >= 100)
             {
@@ -412,11 +448,6 @@ namespace C__Scripts
             if (n == 0) return 1;
             n = Math.Abs(n);
             return (long)Math.Floor(Math.Log10(n)) + 1;
-        }
-
-        private void UpdateUpgradeCoinGenerationValueText()
-        {
-            //add later
         }
 
         private void UpdateUpgradeCoinCountText()
@@ -480,32 +511,35 @@ namespace C__Scripts
         }
         private IEnumerator PlaySwitchingAnimation()
         {
+            //For Freeplay and other Lucky Modes
             if (firstGeneration)
             {
-                UpdateGeneratedNumberText();
-                SlideInGeneratedText();
                 firstGeneration = false;
-                CheckIfWinGame();
             }
             else
             {
                 SlideOutGeneratedText();
                 yield return new WaitForSeconds(numberSlideInDelay);
-                UpdateGeneratedNumberText();
-                SlideInGeneratedText();
-                CheckIfWinGame();
             }
-
-            yield return new WaitForSeconds(buttonEnableDelay);
             
-            // Condition to see if the orchestral sting should play
-            if (gameWin == false && !isProbabilityLessEqualToOnePercent())
+            UpdateGeneratedNumberText();
+            SlideInGeneratedText();
+            if (gameModeManager.isInMeterMode)
             {
-                EnableGenerationButton();
+                CheckIfLoseGame();
             }
             else
             {
-                // let the button turn back on after the orchestral sting coroutine finishes
+                CheckIfWinGame();
+            }
+            
+            
+            yield return new WaitForSeconds(buttonEnableDelay);
+            
+            // If the user wins, loses, or if the orchestral sting plays, escape the IEnumerator without enabling the generation button
+            if (gameWin == false && gameEnd == false && !isProbabilityLessEqualToOnePercent())
+            {
+                EnableGenerationButton();
             }
         }
 
@@ -517,7 +551,17 @@ namespace C__Scripts
             StoreProbabilityPoints();
             
             UpdateProbabilityPointsText();
+            
+            if (gameModeManager.isInMeterMode)
+            {
+                gameModeManager.IncreaseMeterFillAmount(GetRandomlyGeneratedNumber(), totalAccumulatedPoints, currentPointMultiplier);
+                IncrementLowerBoundForMeterMode();
+            }
+            
             StartCoroutine(PlaySwitchingAnimation());
+            
+            //Only works once
+            gameModeManager.StartTimer();
         }
 
         public void UpdateProbabilityPointsText()
@@ -547,6 +591,10 @@ namespace C__Scripts
         
         public void WinGame()
         {
+            if (gameModeManager.isInTimedMode)
+            {
+                gameModeManager.PauseTimedModeTimer();
+            }
             audioManager.GameWin();
             
             inputLock = true;
@@ -556,6 +604,28 @@ namespace C__Scripts
             canvasAnimator.SetBool("GameWin", true);
             backgroundMusic.Stop();
             StartPlayingVictoryMusic();
+            seeResultsButton.SetActive(true);
+            openPointShopButton.interactable = false;
+            openTokenShopButton.interactable = false;
+            accumulatedPointsText.SetText(totalAccumulatedPoints.ToString("N0"));
+            numAttemptsText.SetText(numAttempts.ToString("N0"));
+            finalProbabilityResultsText.SetText(lowerProbabilityOdds.ToString("N0") + " in " + upperProbabilityOdds.ToString("N0"));
+            finalProbabilityResultsTextPercentage.SetText((FormatPercentage((double)lowerProbabilityOdds/upperProbabilityOdds)) + " out of 100% \n or \n " + ((double)lowerProbabilityOdds/upperProbabilityOdds).ToString("0.#######") + " in 1");
+            DisablePausing();
+        }
+        
+        public void EndGame()
+        {
+            if (gameWin)
+            {
+                WinGame();
+                return;
+            }
+            inputLock = true;
+            isTokenGeneratorOn = false;
+            gameEnd = true;
+            DisableGenerationButton();
+            backgroundMusic.Stop();
             seeResultsButton.SetActive(true);
             openPointShopButton.interactable = false;
             openTokenShopButton.interactable = false;
@@ -1060,6 +1130,11 @@ namespace C__Scripts
                 
             }
         }
-        
+
+        public void IncrementLowerBoundForMeterMode()
+        {
+            lowerProbabilityOdds++;
+            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+        }
     }
 }

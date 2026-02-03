@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -10,6 +11,10 @@ public class SettingsManager : MonoBehaviour
     public TMP_Dropdown framerateDropdown;
     Resolution[] resolutions;
     public AudioMixer audioMixer;
+    public Slider menuVolumeSliderSettingsMenu;
+    public Slider sfxVolumeSliderSettingsMenu;
+    public Slider menuVolumeSliderPauseMenu;
+    public Slider sfxVolumeSliderPauseMenu;
 
 
     void Awake()
@@ -19,13 +24,11 @@ public class SettingsManager : MonoBehaviour
         Screen.fullScreen = fullscreen;
 
         // audio
-        float master = PlayerPrefs.GetFloat("masterVolume", 0.8f);
-        float music = PlayerPrefs.GetFloat("musicVolume", 0.8f);
-        float sfx = PlayerPrefs.GetFloat("sfxVolume", 0.8f);
-
-        SetMasterVolume(master);
-        SetMusicVolume(music);
-        SetSFXVolume(sfx);
+        audioMixer.SetFloat("MusicVolume", Mathf.Log10(PlayerPrefs.GetFloat("musicVolume")) * 20);
+        audioMixer.SetFloat("SFXVolume", Mathf.Log10(PlayerPrefs.GetFloat("sfxVolume")) * 20);
+        
+        // sliders
+        InitializeMenuSliders();
 
         // FPS
         int fps = PlayerPrefs.GetInt("targetFPS", 60);
@@ -81,22 +84,16 @@ public class SettingsManager : MonoBehaviour
         }
     }
     
-    public void SetMasterVolume(float sliderValue)
+    public void InitializeMenuSliders()
     {
-        audioMixer.SetFloat("MasterVolume", Mathf.Log10(sliderValue) * 20);
-        PlayerPrefs.SetFloat("masterVolume", sliderValue);
-    }
-
-    public void SetMusicVolume(float sliderValue)
-    {
-        audioMixer.SetFloat("MusicVolume", Mathf.Log10(sliderValue) * 20);
-        PlayerPrefs.SetFloat("musicVolume", sliderValue);
-    }
-
-    public void SetSFXVolume(float sliderValue)
-    {
-        audioMixer.SetFloat("SFXVolume", Mathf.Log10(sliderValue) * 20);
-        PlayerPrefs.SetFloat("sfxVolume", sliderValue);
+        menuVolumeSliderSettingsMenu.value = PlayerPrefs.GetFloat("musicVolume");
+        menuVolumeSliderPauseMenu.value = PlayerPrefs.GetFloat("musicVolume");
+        sfxVolumeSliderSettingsMenu.value = PlayerPrefs.GetFloat("sfxVolume");
+        sfxVolumeSliderPauseMenu.value = PlayerPrefs.GetFloat("sfxVolume");
     }
     
+    public void SavePlayerPrefs()
+    {
+        PlayerPrefs.Save();
+    }
 }
