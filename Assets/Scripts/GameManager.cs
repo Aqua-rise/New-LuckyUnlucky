@@ -336,7 +336,7 @@ namespace C__Scripts
             {
                 backgroundMusic.Pause();
                 PlayOrchestralSting();
-                //GiveLuckStar();
+                
             }
             
             else if (gameModeManager.isAttemptsRunning)
@@ -362,7 +362,7 @@ namespace C__Scripts
                 EndGame();
             }
             
-            else if (totalAccumulatedPoints >= gameModeManager.gameModeMeterMaxValue)
+            if (totalAccumulatedPoints >= gameModeManager.gameModeMeterMaxValue)
             {
                 WinGame();
             }
@@ -429,8 +429,6 @@ namespace C__Scripts
                     break;
             }
 
-            UpdateUpgradeCoinGenerationValueText();
-
             //If greater than or equal to 100, subtract 100, keep the change, and give a token, and play sfx
             if (upgradeCoinGenerationValue >= 100)
             {
@@ -450,11 +448,6 @@ namespace C__Scripts
             if (n == 0) return 1;
             n = Math.Abs(n);
             return (long)Math.Floor(Math.Log10(n)) + 1;
-        }
-
-        private void UpdateUpgradeCoinGenerationValueText()
-        {
-            //add later
         }
 
         private void UpdateUpgradeCoinCountText()
@@ -543,14 +536,10 @@ namespace C__Scripts
             
             yield return new WaitForSeconds(buttonEnableDelay);
             
-            // Condition to see if the orchestral sting should play
-            if (gameWin == false || gameEnd == false && !isProbabilityLessEqualToOnePercent())
+            // If the user wins, loses, or if the orchestral sting plays, escape the IEnumerator without enabling the generation button
+            if (gameWin == false && gameEnd == false && !isProbabilityLessEqualToOnePercent())
             {
                 EnableGenerationButton();
-            }
-            else
-            {
-                // let the button turn back on after the orchestral sting coroutine finishes
             }
         }
 
@@ -566,6 +555,7 @@ namespace C__Scripts
             if (gameModeManager.isInMeterMode)
             {
                 gameModeManager.IncreaseMeterFillAmount(GetRandomlyGeneratedNumber(), totalAccumulatedPoints, currentPointMultiplier);
+                IncrementLowerBoundForMeterMode();
             }
             
             StartCoroutine(PlaySwitchingAnimation());
@@ -1139,6 +1129,12 @@ namespace C__Scripts
                     break;
                 
             }
+        }
+
+        public void IncrementLowerBoundForMeterMode()
+        {
+            lowerProbabilityOdds++;
+            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
         }
     }
 }
