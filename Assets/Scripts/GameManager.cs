@@ -1082,14 +1082,6 @@ namespace C__Scripts
             pauseMenu.SetActive(false);
         }
 
-        /*public void GiveLuckStar()
-        {
-            luckStars++;
-            PlayerPrefs.SetInt("stars", luckStars);
-            PlayerPrefs.Save();
-            luckStarsDisplayText.SetText("x" + luckStars.ToString("N0"));
-        }*/
-
         public void UpdateSpecificShopUpgradeName(TMP_Text textComponent, Image upgradeButtonImage, string upgradeName, int upgradeLevel)
         {
             if (upgradeLevel <= 9)

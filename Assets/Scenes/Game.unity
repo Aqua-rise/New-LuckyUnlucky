@@ -32293,6 +32293,8 @@ MonoBehaviour:
   sfxVolumeSliderSettingsMenu: {fileID: 970955415}
   menuVolumeSliderPauseMenu: {fileID: 1029767092}
   sfxVolumeSliderPauseMenu: {fileID: 748287885}
+  fullscreenToggle: {fileID: 2136798573}
+  vsyncToggle: {fileID: 9892989}
 --- !u!4 &1826100610
 Transform:
   m_ObjectHideFlags: 0
