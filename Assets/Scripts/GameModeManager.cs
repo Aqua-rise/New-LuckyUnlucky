@@ -151,6 +151,10 @@ public class GameModeManager : MonoBehaviour
     {
         meterModeFolder.SetActive(true);
         numericalMeterText.text = "0 / " + gameModeMeterMaxValue.ToString("N0");
+        gameManager.UpdateSlowAndSteadyShopDescription(2);
+        gameManager.UpdateIncreaseMyOddsLowerShopDescription();
+        gameManager.upperDecreaseShopDescriptionValue = 0;
+        gameManager.UpdateIncreaseMyOddsUpperShopDescription();
     }
 
     public void PauseTimedModeTimer()

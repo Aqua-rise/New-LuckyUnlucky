@@ -130,6 +130,7 @@ namespace C__Scripts
         public bool inputLock;
         public bool canPause;
         public bool decrementUpperBound;
+        public bool incrementUpperBound;
         public bool gameWin;
         public bool gameEnd;
         public bool isPointMultiplierActive;
@@ -267,10 +268,10 @@ namespace C__Scripts
             upperProbabilityOdds = value;
         }
 
-        public void DecreaseUpperProbabilityOdds(int decreaseMethod)
+        public void IncreaseMyOddsUpper(int method)
         {
             //For Increase My Odds Upper
-            if (decreaseMethod == 1)
+            if (method == 1)
             {
                 if ((long)(upperProbabilityOdds * upperDecrease) > lowerProbabilityOdds)
                 {
@@ -283,7 +284,7 @@ namespace C__Scripts
             }
 
             //For Slow and Steady
-            if (decreaseMethod == 2)
+            if (method == 2)
             {
                 if (upperProbabilityOdds - currentSlowAndSteadyDecreaseValue > lowerProbabilityOdds)
                 {
@@ -293,6 +294,18 @@ namespace C__Scripts
                 {
                     upperProbabilityOdds = lowerProbabilityOdds + 1;
                 }
+            }
+            
+            //For MeterMode Increase My Odds Upper
+            if (method == 3)
+            {
+                upperProbabilityOdds = (long)(upperProbabilityOdds / upperDecrease);
+            }
+            
+            //For MeterMode Slow and Steady
+            if (method == 4)
+            {
+                upperProbabilityOdds += currentSlowAndSteadyDecreaseValue;
             }
 
         }
@@ -382,7 +395,13 @@ namespace C__Scripts
             long generatedNumber = 0;
             if (decrementUpperBound)
             {
-                DecreaseUpperProbabilityOdds(2);
+                IncreaseMyOddsUpper(2);
+                HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+            }
+
+            if (incrementUpperBound)
+            {
+                IncreaseMyOddsUpper(4);
                 HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
             }
             generatedNumber = (long)Random.Range(1, upperProbabilityOdds + 1);
@@ -471,6 +490,11 @@ namespace C__Scripts
         public void StartDecrementUpperBound()
         {
             decrementUpperBound = true;
+        }
+        
+        public void StartIncrementUpperBound()
+        {
+            incrementUpperBound = true;
         }
 
         public void StoreProbabilityPoints()
@@ -773,18 +797,29 @@ namespace C__Scripts
         {
             if (probabilityPoints >= slowAndSteadyCost)
             {
-                if (decrementUpperBound == false)
+                //For Unlucky Gamemodes
+                //Most of the lucky gamemode code works the same, it's just being applied in a different way.
+                if (gameModeManager.isInMeterMode)
                 {
-                    StartDecrementUpperBound();
+                    if (incrementUpperBound == false)
+                    {
+                        StartIncrementUpperBound();
+                    }
                 }
-
+                else
+                {
+                    //For Lucky Gamemodes
+                    if (decrementUpperBound == false)
+                    {
+                        StartDecrementUpperBound();
+                    }
+                }
                 currentSlowAndSteadyDecreaseValue = upgradedSlowAndSteadyDecreaseValue;
-                slowAndSteadyShopDescriptionText.text =
-                    "When purchased, decreases the upper probability odds by " + upgradedSlowAndSteadyDecreaseValue.ToString("N0") + " for every number generated\n(Currently " + currentSlowAndSteadyDecreaseValue.ToString("N0") + ")";
+                UpdateSlowAndSteadyShopDescription(gameModeManager.isInMeterMode ? 2 : 1);
                 
                 probabilityPoints -= slowAndSteadyCost;
                 slowAndSteadyButton.interactable = false;
-                checkMark.SetActive(true);
+                //checkMark.SetActive(true);
                 HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
                 UpdateProbabilityPointsText();
             }
@@ -809,10 +844,28 @@ namespace C__Scripts
                 slowAndSteadyShopUpgradeButton.SetActive(false);
                 slowAndSteadyShopCostText.text = "Limit Reached";
             }
-            
-            
-            slowAndSteadyShopDescriptionText.text =
-                "When purchased, decreases the upper probability odds by " + upgradedSlowAndSteadyDecreaseValue.ToString("N0") + " for every number generated\n(Currently " + currentSlowAndSteadyDecreaseValue.ToString("N0") + ")";
+
+            UpdateSlowAndSteadyShopDescription(gameModeManager.isInMeterMode ? 2 : 1);
+        }
+
+        public void UpdateSlowAndSteadyShopDescription(int luckyMode)
+        {
+            //For Lucky GameModes
+            if (luckyMode == 1)
+            {
+                slowAndSteadyShopDescriptionText.text =
+                    "When purchased, decreases the upper probability odds by " + 
+                    upgradedSlowAndSteadyDecreaseValue.ToString("N0") + " for every number generated\n(Currently " + 
+                    currentSlowAndSteadyDecreaseValue.ToString("N0") + ")";
+            }
+            //For Unlucky GameModes
+            else if (luckyMode == 2)
+            {
+                slowAndSteadyShopDescriptionText.text =
+                    "When purchased, increases the upper probability odds by " + 
+                    upgradedSlowAndSteadyDecreaseValue.ToString("N0") + " for every number generated\n(Currently " + 
+                    currentSlowAndSteadyDecreaseValue.ToString("N0") + ")";
+            }
         }
 
         private void UpdateSlowAndSteadyPriceText()
@@ -824,8 +877,11 @@ namespace C__Scripts
         {
             if (probabilityPoints >= increaseMyOddsUpperCost)
             {
+                //For Unlucky GameModes : Method 4
+                //For Lucky GameModes : Method 1
+                IncreaseMyOddsUpper(gameModeManager.isInMeterMode ? 3 : 1);
+
                 probabilityPoints -= increaseMyOddsUpperCost;
-                DecreaseUpperProbabilityOdds(1);
                 HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
                 UpdateProbabilityPointsText();
             }
@@ -848,24 +904,43 @@ namespace C__Scripts
             if (increaseUpperOddsUpgradeLevel >= 10)
             {
                 increaseUpperOddsShopUpgradeButton.SetActive(false);
-                
             }
             
         }
 
-        private void UpdateIncreaseMyOddsUpperShopDescription()
+        public void UpdateIncreaseMyOddsUpperShopDescription()
         {
-            upperDecreaseShopDescriptionValue += 1;
-            increaseUpperOddsShopDescriptionText.text =
-                "Decreases the upper bound by " + upperDecreaseShopDescriptionValue + "%.";
+            if (gameModeManager.isInMeterMode)
+            {
+                upperDecreaseShopDescriptionValue += 1;
+                increaseUpperOddsShopDescriptionText.text =
+                    "Increases the upper bound by " + upperDecreaseShopDescriptionValue + "%.";
+            }
+            else
+            {
+                upperDecreaseShopDescriptionValue += 1;
+                increaseUpperOddsShopDescriptionText.text =
+                    "Decreases the upper bound by " + upperDecreaseShopDescriptionValue + "%.";
+            }
         }
 
         public void AttemptPurchaseIncreaseMyOddsLower()
         {
             if (probabilityPoints >= increaseMyOddsLowerCost)
             {
+                //For Unlucky Gamemodes
+                if (gameModeManager.isInMeterMode)
+                {
+                    lowerProbabilityOdds -= lowerIncrease;
+                }
+                else
+                {
+                    lowerProbabilityOdds += lowerIncrease;
+                }
+                
+                
+                //For Lucky Gamemodes
                 probabilityPoints -= increaseMyOddsLowerCost;
-                lowerProbabilityOdds += lowerIncrease;
                 HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
                 UpdateProbabilityPointsText();
 
@@ -890,10 +965,21 @@ namespace C__Scripts
             }
         }
 
-        private void UpdateIncreaseMyOddsLowerShopDescription()
+        public void UpdateIncreaseMyOddsLowerShopDescription()
         {
-            increaseLowerOddsShopDescriptionText.text =
-                "Increases the lower bound by " + lowerIncrease.ToString("N0") + ".";
+            //For Unlucky GameModes
+            if (gameModeManager.isInMeterMode)
+            {
+                increaseLowerOddsShopDescriptionText.text =
+                    "Decreases the lower bound by " + lowerIncrease.ToString("N0") + ".";
+            }
+
+            //For Lucky GameModes
+            else
+            {
+                increaseLowerOddsShopDescriptionText.text =
+                    "Increases the lower bound by " + lowerIncrease.ToString("N0") + ".";
+            }
         }
 
         private void UpdatePurchasePointsShopText()
@@ -1000,6 +1086,8 @@ namespace C__Scripts
 
         private IEnumerator GenerateTokenPercentage()
         {
+            if (!isTokenGeneratorOn) yield return null;
+            
             yield return new WaitForSeconds(1f);
             HandleUpgradeCoinGeneration();
             Debug.Log("Generating Token Percentage...");

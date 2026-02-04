@@ -22,14 +22,11 @@ public class SettingsManager : MonoBehaviour
     void Start()
     {
         // fullscreen
-        Screen.fullScreen = PlayerPrefs.GetInt("fullscreen", 1) == 1;
+        Screen.fullScreen = PlayerPrefs.GetInt("fullscreen") == 1;
 
         // audio
         audioMixer.SetFloat("MusicVolume", Mathf.Log10(PlayerPrefs.GetFloat("musicVolume")) * 20);
         audioMixer.SetFloat("SFXVolume", Mathf.Log10(PlayerPrefs.GetFloat("sfxVolume")) * 20);
-
-        // FPS
-        Application.targetFrameRate = PlayerPrefs.GetInt("targetFPS", 60);
         
         // sliders
         InitializeMenuSliders();

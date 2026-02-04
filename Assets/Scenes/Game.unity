@@ -33165,6 +33165,7 @@ MonoBehaviour:
   inputLock: 0
   canPause: 0
   decrementUpperBound: 0
+  incrementUpperBound: 0
   gameWin: 0
   gameEnd: 0
   isPointMultiplierActive: 0
