@@ -56,6 +56,7 @@ namespace C__Scripts
         public TMP_Text slowAndSteadyShopUpgradeName;
         public TMP_Text tokenGeneratorShopUpgradeName;
         public TMP_Text fasterCooldownShopCostText;
+        public TMP_Text skipAnimationShopCostText;
         public TMP_InputField multiplierInputText;
         public TMP_InputField lowerBoundEntryField;
         public TMP_InputField upperBoundEntryField;
@@ -795,38 +796,46 @@ namespace C__Scripts
 
         public void AttemptPurchaseSlowAndSteady()
         {
-            if (probabilityPoints >= slowAndSteadyCost)
+            if (probabilityPoints < slowAndSteadyCost)
             {
-                //For Unlucky Gamemodes
-                //Most of the lucky gamemode code works the same, it's just being applied in a different way.
-                if (gameModeManager.isInMeterMode)
-                {
-                    if (incrementUpperBound == false)
-                    {
-                        StartIncrementUpperBound();
-                    }
-                }
-                else
-                {
-                    //For Lucky Gamemodes
-                    if (decrementUpperBound == false)
-                    {
-                        StartDecrementUpperBound();
-                    }
-                }
-                currentSlowAndSteadyDecreaseValue = upgradedSlowAndSteadyDecreaseValue;
-                UpdateSlowAndSteadyShopDescription(gameModeManager.isInMeterMode ? 2 : 1);
-                
-                probabilityPoints -= slowAndSteadyCost;
-                slowAndSteadyButton.interactable = false;
-                //checkMark.SetActive(true);
-                HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
-                UpdateProbabilityPointsText();
+                audioManager.PlayUpgradeFailedSound();
+                return;
             }
+            //For Unlucky Gamemodes
+            //Most of the lucky gamemode code works the same, it's just being applied in a different way.
+            if (gameModeManager.isInMeterMode)
+            {
+                if (incrementUpperBound == false)
+                {
+                    StartIncrementUpperBound();
+                }
+            }
+            else
+            {
+                //For Lucky Gamemodes
+                if (decrementUpperBound == false)
+                {
+                    StartDecrementUpperBound();
+                }
+            }
+            currentSlowAndSteadyDecreaseValue = upgradedSlowAndSteadyDecreaseValue;
+            UpdateSlowAndSteadyShopDescription(gameModeManager.isInMeterMode ? 2 : 1);
+                
+            probabilityPoints -= slowAndSteadyCost;
+            slowAndSteadyButton.interactable = false;
+            //checkMark.SetActive(true);
+            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+            UpdateProbabilityPointsText();
+            audioManager.PlayUpgradeSuccessfulSound(false);
+
         }
         public void AttemptPurchaseUpgradeSlowAndSteady()
         {
-            if (upgradeCoins < slowAndSteadyUpgradeLevel) return;
+            if (upgradeCoins < slowAndSteadyUpgradeLevel)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
             
             upgradeCoins-= slowAndSteadyUpgradeLevel;
             slowAndSteadyUpgradeLevel++;
@@ -846,6 +855,7 @@ namespace C__Scripts
             }
 
             UpdateSlowAndSteadyShopDescription(gameModeManager.isInMeterMode ? 2 : 1);
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         public void UpdateSlowAndSteadyShopDescription(int luckyMode)
@@ -875,23 +885,29 @@ namespace C__Scripts
         
         public void AttemptPurchaseIncreaseMyOddsUpper()
         {
-            if (probabilityPoints >= increaseMyOddsUpperCost)
+            if (probabilityPoints < increaseMyOddsUpperCost)
             {
-                //For Unlucky GameModes : Method 4
-                //For Lucky GameModes : Method 1
-                IncreaseMyOddsUpper(gameModeManager.isInMeterMode ? 3 : 1);
-
-                probabilityPoints -= increaseMyOddsUpperCost;
-                HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
-                UpdateProbabilityPointsText();
+                audioManager.PlayUpgradeFailedSound();
+                return;
             }
+            //For Unlucky GameModes : Method 4
+            //For Lucky GameModes : Method 1
+            IncreaseMyOddsUpper(gameModeManager.isInMeterMode ? 3 : 1);
+
+            probabilityPoints -= increaseMyOddsUpperCost;
+            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+            UpdateProbabilityPointsText();
+            audioManager.PlayUpgradeSuccessfulSound(false);
         }
 
         public void AttemptPurchaseUpgradeMyOddsUpper()
         {
-            if (upgradeCoins < increaseUpperOddsUpgradeLevel) return;
-
-
+            if (upgradeCoins < increaseUpperOddsUpgradeLevel)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
+            
             upperDecrease = 1 - (upperDecreaseShopDescriptionValue/100f) - .01f;
 
             upgradeCoins-= increaseUpperOddsUpgradeLevel;
@@ -905,7 +921,7 @@ namespace C__Scripts
             {
                 increaseUpperOddsShopUpgradeButton.SetActive(false);
             }
-            
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         public void UpdateIncreaseMyOddsUpperShopDescription()
@@ -926,29 +942,33 @@ namespace C__Scripts
 
         public void AttemptPurchaseIncreaseMyOddsLower()
         {
-            if (probabilityPoints >= increaseMyOddsLowerCost)
+            if (probabilityPoints < increaseMyOddsLowerCost)
             {
-                //For Unlucky Gamemodes
-                if (gameModeManager.isInMeterMode)
-                {
-                    lowerProbabilityOdds -= lowerIncrease;
-                }
-                else
-                {
-                    lowerProbabilityOdds += lowerIncrease;
-                }
-                
-                
-                //For Lucky Gamemodes
-                probabilityPoints -= increaseMyOddsLowerCost;
-                HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
-                UpdateProbabilityPointsText();
-
+                audioManager.PlayUpgradeFailedSound();
+                return;
             }
+            //For Unlucky Gamemodes
+            if (gameModeManager.isInMeterMode)
+            {
+                lowerProbabilityOdds -= lowerIncrease;
+            }
+            else //For Lucky Gamemodes
+            {
+                lowerProbabilityOdds += lowerIncrease;
+            }
+            
+            probabilityPoints -= increaseMyOddsLowerCost;
+            HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
+            UpdateProbabilityPointsText();
+            audioManager.PlayUpgradeSuccessfulSound(false);
         }
         public void AttemptPurchaseUpgradeMyOddsLower()
         {
-            if (upgradeCoins < increaseLowerOddsUpgradeLevel) return;
+            if (upgradeCoins < increaseLowerOddsUpgradeLevel)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
             
             upgradeCoins -= increaseLowerOddsUpgradeLevel;
             increaseLowerOddsUpgradeLevel++;
@@ -963,6 +983,7 @@ namespace C__Scripts
             {
                 increaseLowerOddsShopUpgradeButton.SetActive(false);
             }
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         public void UpdateIncreaseMyOddsLowerShopDescription()
@@ -994,7 +1015,11 @@ namespace C__Scripts
 
         public void AttemptPurchasePoints()
         {
-            if (upgradeCoins <= 0) return;
+            if (upgradeCoins <= 0)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
 
             upgradeCoins--;
             probabilityPoints += staticUpperProbabilityOdds;
@@ -1004,7 +1029,11 @@ namespace C__Scripts
 
         public void AttemptPurchasePointMultiplier()
         {
-            if (upgradeCoins <= 4) return;
+            if (upgradeCoins <= 4)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
 
             upgradeCoins -= 5;
             isPointMultiplierActive = true;
@@ -1012,11 +1041,16 @@ namespace C__Scripts
             currentPointMultiplier++;
             UpdateUpgradeCoinCountText();
             UpdatePointMultiplierShopText();
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         public void AttemptPurchaseSkipAnimation()
         {
-            if (upgradeCoins <= 4) return;
+            if (upgradeCoins <= 4)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
             
             UnlockFasterCooldown();
             upgradeCoins -= 5;
@@ -1025,6 +1059,8 @@ namespace C__Scripts
             buttonEnableDelay = 0.35f;
             skipAnimationShopButton.interactable = false;
             UpdateUpgradeCoinCountText();
+            skipAnimationShopCostText.text = "Limit Reached";
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         private void UnlockFasterCooldown()
@@ -1036,7 +1072,11 @@ namespace C__Scripts
 
         public void AttemptPurchaseFasterCooldown()
         {
-            if (upgradeCoins <= 4) return;
+            if (upgradeCoins <= 4)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
 
             if (buttonEnableDelay <= .05)
             {
@@ -1051,11 +1091,16 @@ namespace C__Scripts
             buttonEnableDelay -= .05f;
             upgradeCoins -= 5;
             UpdateUpgradeCoinCountText();
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         public void AttemptPurchaseTokenGenerator()
         {
-            if (probabilityPoints < tokenGeneratorCost) return;
+            if (probabilityPoints < tokenGeneratorCost)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
 
             if (!isTokenGeneratorOn)
             {
@@ -1066,6 +1111,7 @@ namespace C__Scripts
                 UpdateTokenGeneratorShopDescription();
                 UpdateProbabilityPointsText();
                 GenerateTokenPercentageInitializer();
+                audioManager.PlayUpgradeSuccessfulSound(false);
                 return;
             }
             
@@ -1074,6 +1120,7 @@ namespace C__Scripts
             tokenGeneratorButton.interactable = false;
             UpdateProbabilityPointsText();
             UpdateTokenGeneratorShopDescription();
+            audioManager.PlayUpgradeSuccessfulSound(false);
         }
 
         private void GenerateTokenPercentageInitializer()
@@ -1121,7 +1168,11 @@ namespace C__Scripts
 
         public void AttemptPurchaseUpgradeTokenGenerator()
         {
-            if (upgradeCoins < tokenGeneratorUpgradeLevel) return;
+            if (upgradeCoins < tokenGeneratorUpgradeLevel)
+            {
+                audioManager.PlayUpgradeFailedSound();
+                return;
+            }
             
             upgradedTokenGeneratorValue += 1;
             upgradeCoins -= tokenGeneratorUpgradeLevel;
@@ -1137,7 +1188,7 @@ namespace C__Scripts
                 tokenGeneratorShopUpgradeButton.SetActive(false);
                 tokenGeneratorShopCostText.text = "Limit Reached";
             }
-            
+            audioManager.PlayUpgradeSuccessfulSound(true);
         }
 
         private void UpdateTokenGeneratorShopDescription()

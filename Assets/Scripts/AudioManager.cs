@@ -26,6 +26,9 @@ namespace C__Scripts
         public AudioSource numberGen8;
         public AudioSource numberGen9;
         public AudioSource gainUpgradeToken;
+        public AudioSource upgradeFailed;
+        public AudioSource pointPurchaseSuccessful;
+        public AudioSource tokenPurchaseSuccessful;
         
         public TMP_Text AudioVolumeText;
 
@@ -205,5 +208,24 @@ namespace C__Scripts
         {
             gainUpgradeToken.Play();
         }
+
+        public void PlayUpgradeFailedSound()
+        {
+            upgradeFailed.Play();
+        }
+
+        public void PlayUpgradeSuccessfulSound(bool isTokenUpgrade)
+        {
+            if (!isTokenUpgrade)
+            {
+                pointPurchaseSuccessful.Play();
+            }
+            else
+            {
+                tokenPurchaseSuccessful.Play();
+            }
+        }
+        
+        
     }
 }
