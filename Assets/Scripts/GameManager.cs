@@ -802,7 +802,7 @@ namespace C__Scripts
                 return;
             }
             //For Unlucky Gamemodes
-            //Most of the lucky gamemode code works the same, it's just being applied in a different way.
+            //Most of the lucky gamemode code works the same when in unlucky mode, it's just being applied in a different way.
             if (gameModeManager.isInMeterMode)
             {
                 if (incrementUpperBound == false)
@@ -826,7 +826,15 @@ namespace C__Scripts
             //checkMark.SetActive(true);
             HandleProbabilityDisplayFormatting(lowerProbabilityOdds, upperProbabilityOdds);
             UpdateProbabilityPointsText();
+            UpdateSlowAndSteadyPriceText(false);
             audioManager.PlayUpgradeSuccessfulSound(false);
+
+            if (slowAndSteadyUpgradeLevel >= 10)
+            {
+                UpdateSlowAndSteadyPriceText(true);
+                return;
+            }
+            UpdateSlowAndSteadyPriceText(false);
 
         }
         public void AttemptPurchaseUpgradeSlowAndSteady()
@@ -845,13 +853,12 @@ namespace C__Scripts
             slowAndSteadyButton.interactable = true;
             checkMark.SetActive(false);
             UpdateUpgradeCoinCountText();
-            UpdateSlowAndSteadyPriceText();
+            UpdateSlowAndSteadyPriceText(slowAndSteadyCost);
             UpdateSpecificShopUpgradeName(slowAndSteadyShopUpgradeName, slowAndSteadyShopUpgradeImage, "Slow and Steady", slowAndSteadyUpgradeLevel);
 
             if (slowAndSteadyUpgradeLevel >= 10)
             {
                 slowAndSteadyShopUpgradeButton.SetActive(false);
-                slowAndSteadyShopCostText.text = "Limit Reached";
             }
 
             UpdateSlowAndSteadyShopDescription(gameModeManager.isInMeterMode ? 2 : 1);
@@ -878,9 +885,18 @@ namespace C__Scripts
             }
         }
 
-        private void UpdateSlowAndSteadyPriceText()
+        private void UpdateSlowAndSteadyPriceText(bool isLastUpgrade)
         {
-            slowAndSteadyShopCostText.text = slowAndSteadyCost.ToString("N0");
+            if (isLastUpgrade)
+            {
+                slowAndSteadyShopCostText.text = "Fully Upgraded";
+                return;
+            }
+            slowAndSteadyShopCostText.text = "Upgrade Required";
+        } 
+        private void UpdateSlowAndSteadyPriceText(long upgradeCost)
+        {
+            slowAndSteadyShopCostText.text = upgradeCost.ToString("N0");
         }
         
         public void AttemptPurchaseIncreaseMyOddsUpper()
@@ -1111,6 +1127,7 @@ namespace C__Scripts
                 UpdateTokenGeneratorShopDescription();
                 UpdateProbabilityPointsText();
                 GenerateTokenPercentageInitializer();
+                UpdateTokenGeneratorShopCostText(false);
                 audioManager.PlayUpgradeSuccessfulSound(false);
                 return;
             }
@@ -1120,8 +1137,16 @@ namespace C__Scripts
             tokenGeneratorButton.interactable = false;
             UpdateProbabilityPointsText();
             UpdateTokenGeneratorShopDescription();
+            UpdateTokenGeneratorShopCostText(false);
             audioManager.PlayUpgradeSuccessfulSound(false);
+
+            if (tokenGeneratorUpgradeLevel >= 10)
+            {
+                UpdateTokenGeneratorShopCostText(true);
+            }
         }
+        
+        
 
         private void GenerateTokenPercentageInitializer()
         {
@@ -1180,13 +1205,13 @@ namespace C__Scripts
             tokenGeneratorButton.interactable = true;
             UpdateUpgradeCoinCountText();
             UpdateTokenGeneratorShopDescription();
+            UpdateTokenGeneratorShopCostText(tokenGeneratorCost);
             UpdateSpecificShopUpgradeName(tokenGeneratorShopUpgradeName, tokenGeneratorShopUpgradeImage, "Token Generator", tokenGeneratorUpgradeLevel);
 
             
             if (tokenGeneratorUpgradeLevel >= 10)
             {
                 tokenGeneratorShopUpgradeButton.SetActive(false);
-                tokenGeneratorShopCostText.text = "Limit Reached";
             }
             audioManager.PlayUpgradeSuccessfulSound(true);
         }
@@ -1196,6 +1221,21 @@ namespace C__Scripts
             tokenGeneratorShopDescription.text = "When purchased, generates a token by " + upgradedTokenGeneratorValue +
                                                  "% every second\n(Currently " + currentTokenGeneratorValue +
                                                  "% per second)";
+        }
+
+        private void UpdateTokenGeneratorShopCostText(bool isLastUpgrade)
+        {
+            if (isLastUpgrade)
+            {
+                tokenGeneratorShopCostText.text = "Fully Upgraded";
+                return;
+            }
+            tokenGeneratorShopCostText.text = "Upgrade Required";
+        }
+        
+        private void UpdateTokenGeneratorShopCostText(long upgradeCost)
+        {
+            tokenGeneratorShopCostText.text = upgradeCost.ToString("N0");
         }
 
         public bool isProbabilityLessEqualToOnePercent()
