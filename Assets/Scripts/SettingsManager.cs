@@ -18,6 +18,8 @@ public class SettingsManager : MonoBehaviour
     public Toggle fullscreenToggle;
     public Toggle vsyncToggle;
 
+    public TMP_Text musicAudioVolumeText;
+    public TMP_Text sfxAudioVolumeText;
 
     void Start()
     {
@@ -32,6 +34,7 @@ public class SettingsManager : MonoBehaviour
         InitializeMenuSliders();
         InitializeMenuToggles();
         InitializeMenuDropdowns();
+        InitializeMenuVolumeDisplayTexts();
     }
     
     public void SetFullscreen(bool isFullscreen)
@@ -106,6 +109,12 @@ public class SettingsManager : MonoBehaviour
             framerateDropdown.interactable = false;
         }
         framerateDropdown.value = PlayerPrefs.GetInt("framerateDropdownValue", 0);
+    }
+
+    public void InitializeMenuVolumeDisplayTexts()
+    {
+        musicAudioVolumeText.text = PlayerPrefs.GetFloat("musicVolume").ToString("P0");
+        sfxAudioVolumeText.text = PlayerPrefs.GetFloat("sfxVolume").ToString("P0");
     }
     
     public void SavePlayerPrefs()

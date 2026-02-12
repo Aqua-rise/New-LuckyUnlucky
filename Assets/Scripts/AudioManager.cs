@@ -30,7 +30,8 @@ namespace C__Scripts
         public AudioSource pointPurchaseSuccessful;
         public AudioSource tokenPurchaseSuccessful;
         
-        public TMP_Text AudioVolumeText;
+        public TMP_Text musicAudioVolumeText;
+        public TMP_Text sfxAudioVolumeText;
 
         //These two always start enabled
         private bool _tambourineEnabled = true;
@@ -112,8 +113,6 @@ namespace C__Scripts
 
         public void AdjustAllEnabledAudioSourceVolume(float volume)
         {
-            //Edit audio display text
-            AudioVolumeText.text = (volume / 100).ToString("P0");
             
             //Edit only enabled volumes
             if (_tambourineEnabled)
@@ -147,12 +146,14 @@ namespace C__Scripts
             //Calculated to translate values from the slider
             audioMixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
             PlayerPrefs.SetFloat("musicVolume", value);
+            musicAudioVolumeText.text = (value).ToString("P0");
         }
         public void SetSfxVolume(float value)
         {
             //Calculated to translate values from the slider
             audioMixer.SetFloat("SFXVolume", Mathf.Log10(value) * 20);
             PlayerPrefs.SetFloat("sfxVolume", value);
+            sfxAudioVolumeText.text = (value).ToString("P0");
         }
         
         public void GameWin()
